@@ -1,0 +1,1 @@
+interface和type区别
