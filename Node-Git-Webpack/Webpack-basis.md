@@ -268,7 +268,7 @@ vue.config.js
 //...
 module.exports = defineConfig({
   //...
-  // 配置webpack
+  // 通过webpack-merge合并到webpack
   configureWebpack: {
     resolve: {
       alias: {

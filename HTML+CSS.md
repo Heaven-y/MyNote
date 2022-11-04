@@ -142,6 +142,14 @@ radio单选,chekbox多选需要name相同 提交value值
 
 
 
+#### css sprite
+
+制作：https://www.toptal.com/developers/css/sprite-generator
+
+查看：http://www.spritecow.com/
+
+
+
 #### 元素隐藏(4)
 
 * display:none	不占据任何空间(不存在一样)
@@ -187,9 +195,13 @@ text-indent对行内非替换元素无效
 
 
 
-#### vertical-align(day12)
+# vertical-align(day12)
 
 影响行内块级元素在一个行盒中垂直方向的位置
+
+
+
+
 
 
 
@@ -334,6 +346,25 @@ border-box
 
 
 前景色会在border没有设置颜色的情况下, 显示出来color颜色
+
+
+
+box-shadow :https://html-css-js.com/css/generator/box-shadow/
+
+
+
+#### bgimg和img对比
+
+|                        |    img     | background-image |
+| :--------------------: | :--------: | :--------------: |
+|          性质          |  HTML元素  |     CSS样式      |
+|    图片是否占用空间    |     √      |        ×         |
+| 浏览器右键直接查看地址 |     √      |        ×         |
+|     支持CSS Sprite     |     ×      |        √         |
+| 更有可能被搜索引擎收录 | √(结合alt) |        ×         |
+
+* img，作为网页内容的重要组成部分，比如广告图片、LOGO图片、文章配图、产品图片
+*  background-image，有-能让网页更加美观。无-不影响用户获取完整的网页内容信息
 
 
 
@@ -514,7 +545,7 @@ item中的属性
 
 * 添加i/span/strong元素 个数为列数-2，设置宽度(因为没有高度，所以不显示)
 
-flex和white-space的冲突
+flex和white-space的冲突(10-4)
 
 * 给设置了flex的元素添加overflow
 
