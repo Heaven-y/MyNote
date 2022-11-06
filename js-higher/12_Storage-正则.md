@@ -34,16 +34,20 @@
 **Storage本身不能直接存储对象类型的**
 
 ```js
+function judge(value) {
+  if (value === undefined || value === null) {
+    return false
+  }
+  return true
+}
 class Cache {
   constructor(isLocal = true) {
     this.storage = isLocal ? localStorage : sessionStorage
   }
   setCache(key, value) {
-    if (!value) {
-      throw new Error("value error: value必须有值")
+    if (judge(value)) {
+      this.storage.setItem(key, JSON.stringify(value))
     }
-    // 对象转换成JSON格式存储
-    this.storage.setItem(key, JSON.stringify(value))
   }
   getCache(key) {
     const result = this.storage.getItem(key)
