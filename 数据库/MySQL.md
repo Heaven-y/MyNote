@@ -54,5 +54,5 @@ CREATE TABLE IF NOT EXISTS `moment`(
 	FOREIGN KEY(user_id) REFERENCES users(id)
 )
 
-
+INSERT INTO moment (content, user_id) VALUES (?, ?);
 
