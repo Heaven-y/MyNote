@@ -91,7 +91,7 @@ props{validator}
       1.updated周期中获取（其他数据更新也会执行操作）
       2.nextTick(callback)
 
-  原理：将callback加入到微任务队列的最后(等到watch、组件的更新，生命周期等微任务执行完后再执行)
+  原理：将callback加入到微任务队列的最后(等到watch、组件的更新，生命周期等微任务执行完后再执行)(放入到了Promise的then当中)
 
   好处:
   ```js
