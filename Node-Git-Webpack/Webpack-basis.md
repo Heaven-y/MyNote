@@ -91,10 +91,10 @@ module.exports = {
         test: /\.js$/,
         use: [ 
           {
-            loader: "bable-loader",
-            // 抽取到bable.config.js中 
+            loader: "babel-loader",
+            // 抽取到babel.config.js中 
             /*options: {
-              presets: ["@bable/loader-env"]
+              presets: ["@babel/loader-env"]
             }*/
           }
         ]
@@ -139,7 +139,7 @@ module.exports = {
 
 
 
-bable.config.js
+babel.config.js
 
 常见预设
 
@@ -149,9 +149,9 @@ bable.config.js
 
 ```js
 module.exports = {
-  // npm i @bable/preset-env -D
+  // npm i @babel/preset-env -D
 	presets: [
-    "@bable/preset-env"
+    "@babel/preset-env"
   ]
 }
 ```
