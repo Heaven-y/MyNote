@@ -201,25 +201,19 @@ text-indent对行内非替换元素无效
 
 
 
-
-
-
-
 #### line-hight
 
-行盒
+* 行盒
 
- 两行**文字**基线之间的距离
+  两行**文字**基线之间的距离
 
 行高 - 文本高度 = 行距
 
 font-size/line-height   30px/1.5  1.5相对于30px
 
-
-
 行内非替换元素的高度无法由line-hight撑起来，但是会继承过来  `display:(inline-)block`
 
-
+;
 
 #### 选择器
 
@@ -248,23 +242,15 @@ font-size/line-height   30px/1.5  1.5相对于30px
 
 #### 块，行内(块)
 
-行内级非替换元素设置宽高不生效
+##### 行内级非替换元素
+
+* 设置width、height不生效
+* **border、padding的上下会撑大内容，但是不会占据空间**
+* margin的上下不生效
 
 img、video、input能设置宽高：行内替换元素
 
-
-
 `开启绝对定位的元素(absolute/fixed)能随意设置宽高`
-
-
-
-##### 行内非替换元素
-
-​	width、height不生效
-
-​	**border、padding的上下会撑大内容，但是不会占据空间**
-
-​	margin的上下不生效
 
 ​	
 
@@ -286,7 +272,7 @@ img、video、input能设置宽高：行内替换元素
 
 ​	marin-bottom：块级元素的底部线和父元素的底部线重叠，且父元素高度为auto
 
-​	
+
 
 如何防止出现传递
 
@@ -386,9 +372,9 @@ display: -webkit-box;
 
 
 
-#### background
 
-color  url  position/size  style  attachement
+
+background:color  url  position/size  style  attachement
 
 
 
@@ -429,13 +415,15 @@ sticky 相对定位，到阈值时变为绝对定位  相对于最近的滚动�
 
 #### 浮动
 
+浮动元素脱离了标准流，变成了浮动元素，不再向父元素汇报高度。所以父元素在计算高度时并没有将浮动元素的高度计算进来，因此就造成了高度塌陷的问题
+
 清除浮动clear
 
 clear 属性可以指定一个元素是否必须移动(清除浮动后)到在它之前的浮动元素下面
 
 
 
-### BFC(day15)
+## BFC(day15)
 
 Block Formating Context 块级格式化上下文
 
@@ -593,21 +581,34 @@ PPI 每英寸像素
 
 
 
-## 移动端
+## 视口
 
-### 视口
+PC端:浏览器可视区域
 
-布局视口  宽度980px 缩放
+移动端
 
-视觉视口
-
-理想视口  布局视口=视觉视口
+* 布局视口  相对于宽为980px来布局页面的视口
+* 视觉视口  显示在可见区域的视口，称为视觉视口
+* 理想视口  布局视口=视觉视口
 
 ### 适配方案
 
-* rem+动态html的font-size
+* 视口+rem+动态html的font-size
+  * 动态计算 HTML font-zise
+    * 用媒体查询来修改HTML font-size( 缺点不能实时改变font-size的大小 )
+    * 自己编写JS来实现修改HTML font-size的大小(可以实时修改字体大小)
+    * 引用lib-flexiable库来实现（原理是JS动态改HTML font-size大小）
+
+  * px 转成rem
+    * Less的映射来计算
+    * postcss-pxtorem插件来实现（webpack阶段会学到）
+    * cssrem VSCode插件来实现
 
 * vw单位
+  * Less的映射来计算
+  * Postcss-px-to-viewport的插件(Wepack 阶段学)
+  * ccsrem VSCode插件
+
 * flex的弹性布局
 
 
