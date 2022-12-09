@@ -22,7 +22,7 @@ SSH
 
 公钥放入远程服务器
 
-* ssh-keygen -t ed25519(加密类型) -C "your email"
+* ssh-keygen -t ed25519(为加密类型) -C "your email"
 * ssh-keygen -t rsa -b 2048 -C  "your email"
 
 
@@ -50,10 +50,10 @@ SSH
 
 
 
-版本回退 git reset --hard
+版本回退 git reset --hard HEAD\^
 
 * HEAD 当前分支的指针，记录该分支上最后一次提交
-  * 上个版本HEAD^，上上个版本HEAD^^，上num版本HEAD~num
+  * 上个版本HEAD\^，上上个版本HEAD^^，上num版本HEAD~num
 * 也可也指定commit id
 
 
@@ -66,13 +66,13 @@ git commit -a -m "description"
 
 
 
-git remote (-verbose)  查看远程地址
+git remote (--verbose)  查看远程地址
 
 git remote add <shotrname\> <url\> 添加远程地址
 
-* (通过http添加)直接git pull 报错
+* (通过https添加)直接git pull 报错
   * 只是连接了远程仓库，未指定分支间的连接
-  * git branch --set-upstream-to=origin/master 给本地的分支设置上游分支(跟踪分支) --解决git fetch
+  * git branch --set-upstream-to=origin/master(main) 给本地的分支设置上游分支(跟踪分支) --解决git fetch
   * git merge --allow-unrelated-histories
 
 
@@ -81,7 +81,37 @@ git pull = git fetch + git merge(rebase)
 
 
 
+git push的默认行为 push.default
 
+* simple
+* current
+* upstream......
+
+
+
+#### tag
+
+git tag 'tagname'
+
+git tag -a 'tagname' -m '标注信息'
+
+
+
+#### 分支
+
+git checkout -b '分支名'   在本地创建一个新分支并切换到该分支
+
+
+
+
+
+
+
+
+
+开源协议
+
+<img src="img/image-20221208204549634.png" alt="image-20221208204549634" style="zoom:70%;" />
 
 
 
