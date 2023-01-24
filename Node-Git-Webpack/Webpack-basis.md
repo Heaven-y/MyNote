@@ -36,7 +36,7 @@ module.exports = {
     }
   },
   
-  devServer: {
+  devServer: { //npm i webpack-dev-server -D
     hot: true,
     port: 8080,
     open: false, //是否打开浏览器
@@ -76,7 +76,7 @@ module.exports = {
       {
         // webpack5可以直接使用资源模块类型
         test: /\.(png|jpe?g|svg|gif$)/,
-        type: "asset",
+        type: "asset/resource", // 直接使用type
         parser: {
           dataUrlCondition: {
             // base64编码or打包
@@ -101,8 +101,8 @@ module.exports = {
       },
       {
         test: /\.vue$/,
-      },
-      {}
+        loader: "vue-loader"
+      }
     ]
   },
   plugins: [

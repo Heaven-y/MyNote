@@ -362,15 +362,15 @@ overflow:hidden
 
 text-overflow:ellipsis 
 
+多行
 
-
-display: -webkit-box;
-
--webkit-line-clamp: 2;
-
--webkit-box-orient: vertical;
-
-
+```css
+display: -webkit-box; /*弹性盒*/
+-webkit-line-clamp: 2; /*显示行数*/
+-webkit-box-orient: vertical; /*设置伸缩盒对象的子元素的排列方式*/
+overflow: hidden;
+text-overflow: ellipsis;
+```
 
 
 

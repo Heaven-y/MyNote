@@ -17,8 +17,14 @@
 
   * deleteProperty(target, key)
 
-  
-  
+
+
+
+```javascript
+
+```
+
+
 
 
 

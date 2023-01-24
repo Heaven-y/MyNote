@@ -23,6 +23,31 @@ template -> createVNode -> VNode -> VDOM
 
 
 
+### 应用实例和根组件实例
+
+* 每个Vue应用都是通过createApp函数创建一个新的**应用实例**
+
+* createApp传入的对象实际上是一个根组件
+
+* ```js
+  import { createApp } from 'vue'
+  import App from './App.vue' 
+  
+  const app = createApp(App)
+  // app为一个应用实例
+  app.mount('#app')
+  ```
+
+* `.mount()`应该始终在整个应用配置和资源注册完成后被调用。并且它返回的是**根组件实例**而非应用实例
+
+  * 该方法接收一个“容器”参数。应用根组件的内容将会被渲染在容器元素里面。容器元素自己将**不会**被视为应用的一部分。
+
+
+
+
+
+
+
 methods中如果使用箭头函数，根据this查找规则，找到script作用域中的this----window
 
 * 事实上Vue的源码当中就是对methods中的所有函数进行了遍历，并且通过**bind**绑定了this
