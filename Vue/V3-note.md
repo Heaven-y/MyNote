@@ -1,10 +1,21 @@
 创建项目
 
-* 方式一：Vue CLI：vue create app-name
+* 方式一(webpack)：Vue CLI：vue create app-name
+  * 在vue文件的template中引入图片资源,webpack中可以使用require()进行包裹(vite中没有require)
+  * <img :src="require(xxx)" /\>
 
-* 方式二：npm init vue@latest
-  * 1.安装一个本地工具：create-vue
-  * 2.使用create-vue创建一个vue项目
+* 方式二(vite)：npm init vue@latest
+  * 安装一个本地工具：create-vue,使用create-vue创建一个vue项目
+  
+  * vite直接按照es6的语法启动（启动快的原因之一）
+  
+  * ```typescript
+    export function getAssetURL(image: string): string {
+      // 参数一: 相对路径
+      // 参数二: 当前路径的URL
+      return new URL(`../assets/img/${image}`, import.meta.url).href
+    }
+    ```
 
 Vue Cli运行原理
 
@@ -17,7 +28,7 @@ template -> createVNode -> VNode -> VDOM
 * runtime-only
   * 代码中不可以有任何template
   * .vue文件中的template已经由vue-template-compiler渲染成render函数了
-    * **webpack中的vue-loader已经完成了template -> createVNode 过程**
+    * **webpack中的vue-loader已经完成了template -> createVNode 过程**（依赖于@vue/compiler-sfc）
 * runtime-compiler
   * 由Vue中源码的代码进行处理template
 
@@ -69,10 +80,15 @@ v-for: (item, index) in 数组/(value, key, index) in 对象
 * key的作用：主要用在Vue的虚拟DOM算法，在新旧nodes对比时辨识VNodes
   * 如果不使用key，Vue会使用一种最大限度减少动态元素并且尽可能的尝试就地修改/复用相同类型元素的算法
     * 使用 patchUnkeyedChildren方法
+    * 获取旧节点和新节点的长度
+    * 对比获取最小长度
+    * 从0开始依次patch比较
+    * 如果旧节点数目大于新节点,移除剩余节点
+    * 否则创建新节点
   * 使用key时，它会基于key的变化重新排列元素顺序，并且会移除/销毁key不存在的元素
     * 使用 patchKeyedChildren方法
     * 1.头部开始遍历，遇到相同节点继续，不同就跳出循环
-    * 2.头部开始遍历，遇到相同节点继续，不同就跳出循环
+    * 2.尾部开始遍历，遇到相同节点继续，不同就跳出循环
     * 3.新节点更多，就添加新节点/旧节点更多，就移除旧节点
     * 4.中间不知道排列的位置序列则根据key建立索引图。最大限度使用旧节点
 
@@ -90,6 +106,28 @@ v-memo绑定any[]
 
 
 
+### 自定义指令
+
+* 自定义局部指令
+
+```vue
+<script setup>
+const vWhy = {
+  created(el, bindings) {},
+  beforeMount() {},
+  mounted() {},
+  beforeUpdate() {},
+  updated() {},
+  beforeUnmount() {},
+  unmounted() {}
+}
+</script>
+```
+
+* 自定义全局指令：app.directive(name, fn)，可以在任意组件中被使用
+
+
+
 ### v-model
 
 本质原理：
@@ -99,6 +137,52 @@ v-memo绑定any[]
    v-on绑定input事件监听到函数中，函数会获取最新的值赋值到绑定的属性中
 
 * 实际更复杂
+
+```vue
+<template>
+  <!-- 1.checkbox单选框: 绑定到属性中的值是一个Boolean -->
+  <label for="agree">
+    <input id="agree" type="checkbox" v-model="isAgree"> 同意协议
+    </label>
+  <h2>单选框: {{isAgree}}</h2>
+
+  <!-- 2.checkbox多选框: 绑定到属性中的值是一个Array -->
+  <!-- 注意: 多选框当中, 必须明确的绑定一个value值 -->
+  <div>
+    <h2>请选择你的爱好:</h2>
+    <label for="sing">
+      <input id="sing" type="checkbox" v-model="hobbies" value="sing"> 唱
+    </label>
+    <label for="jump">
+      <input id="jump" type="checkbox" v-model="hobbies" value="jump"> 跳
+    </label>
+    <label for="rap">
+      <input id="rap" type="checkbox" v-model="hobbies" value="rap"> rap
+    </label>
+    <h2>爱好: {{hobbies}}</h2>
+  </div>
+
+  <div>
+    <!-- select的单选 -->
+    <select v-model="fruit">
+      <option value="apple">苹果</option>
+      <option value="orange">橘子</option>
+      <option value="banana">香蕉</option>
+    </select>
+    <h2>单选: {{fruit}}</h2>
+
+    <!-- select的多选 -->
+    <select multiple size="3" v-model="fruits">
+      <option value="apple">苹果</option>
+      <option value="orange">橘子</option>
+      <option value="banana">香蕉</option>
+    </select>
+    <h2>多选: {{fruits}}</h2>
+    </div>
+</template>
+```
+
+
 
 修饰符
 
@@ -195,6 +279,39 @@ defineExpose 编译器宏来显式指定在 \<script setup> 组件中要暴露�
 
 \<component :is="">\</component>
 
+### nexttick
+
+  将回调推迟到下一个DOM更新周期之后执行。在更改了一些数据以等待DOM更新后立即使用它
+    需求：点击一个按钮后，会修改在h2中的message
+    message被修改后，获取h2的最新高度
+      1.updated周期中获取（其他数据更新也会执行操作）
+      2.nextTick(callback)
+
+  原理：将callback加入到微任务队列的最后(等到watch、组件的更新，生命周期等微任务执行完后再执行)(放入到了Promise的then当中)
+
+  好处:
+  ```js
+    const increment = () => {
+      for(let i = 0; i < 100; i++) {
+        counter.value++
+      }
+    }
+  ```
+  假如有watch(counter,() => {})...时 监听的函数并不会执行一百次。真正的更新并不是同步更新，而是加入微任务队列中。当先把这次的宏任务做完时，再去执行微任务
+
+
+
+
+
+
+
+### Teleport
+
+Teleport类似于react中的Portals
+to="属性选择"
+
+
+
 ### 异步组件
 
 组件分包：对于一些不需要立即使用的组件，我们可以单独对它们进行拆分，拆分成一些小的代码块chunk.js、这些chunk.js会在需要时从服务器加载下来，并且运行代码，显示对应的内容
@@ -219,48 +336,16 @@ defineExpose 编译器宏来显式指定在 \<script setup> 组件中要暴露�
 
 
 
-### nexttick
+Suspense两个插槽
 
-  将回调推迟到下一个DOM更新周期之后执行。在更改了一些数据以等待DOM更新后立即使用它
-    需求：点击一个按钮后，会修改在h2中的message
-    message被修改后，获取h2的最新高度
-      1.updated周期中获取（其他数据更新也会执行操作）
-      2.nextTick(callback)
-
-  原理：将callback加入到微任务队列的最后(等到watch、组件的更新，生命周期等微任务执行完后再执行)(放入到了Promise的then当中)
-
-  好处:
-  ```js
-    const increment = () => {
-      for(let i = 0; i < 100; i++) {
-        counter.value++
-      }
-    }
-  ```
-  假如有watch(counter,() => {})...时 监听的函数并不会执行一百次。真正的更新并不是同步更新，而是加入微任务队列中。当先把这次的宏任务做完时，再去执行微任务
-
-
-
-### 自定义指令
-
-* 自定义局部指令：组件中通过 directives 选项，只能在当前组件中使用
-* 自定义全局指令：app的 directive 方法，可以在任意组件中被使用
-
-
-
-
-
-### Teleport
-
-
-
-### 异步组件
-
-Suspense
+- #default
+- #fallback
 
 
 
 ### Vue插件
+
+app.use()接收两种类型,并且传入app作为参数
 
 * 对象类型：一个对象，但是必须包含一个 install 的函数，该函数会在安装插件时执行
 * 函数类型：一个function，这个函数会在安装插件时自动执行
@@ -276,11 +361,60 @@ Suspense
 
 ### h函数
 
+自己编写createVNode函数
+render函数是放在对应的组件里面的一个选项，当去渲染组件时，调用的是render函数，这个函数返回VNode，为了创建对应的VNode而去调用h函数(createVNode函数)
+
+template -> vue-loader转化
+render -> 不需要转换
+jsx -> bable转化
+
+
+
 ({String | Object | Function}tag, {Object}props, {String | Array | Object}children)
 
 * tag：一个HTML标签名/一个组件/一个异步组件/一个函数式组件
 * props：与attribut、prop和事件相对应的对象
-* children：子VNodes，使用h()构建/或使用字符串获取'文本VNode'/或有插槽的对象
+* children：子VNodes，使用h()构建 /or 使用字符串获取'文本VNode' /or 有插槽的对象
+
+```vue
+<!-- vue2 -->
+<script>
+  import { h } from 'vue'
+
+  export default {
+    render() {
+      return h("div", { className: "app" }, [
+        h("h2", { className: "title" }, "我是标题"),
+        h("p", { className: "content" }, "我是内容, 哈哈哈"),
+      ])
+    }
+  }
+</script>
+
+<!-- vue3 -->
+<script lang="jsx" setup>
+import { ref } from 'vue'
+
+const counter = ref(0)
+
+const increment = () => { counter.value++ }
+const decrement = () => { counter.value-- }
+
+const jsx = () => (
+  <div class="app">
+    <h2>当前计数: { counter.value }</h2>
+    <button onClick={ increment }>+1</button>
+    <button onClick={ decrement }>-1</button>
+  </div>
+)
+</script>
+
+<template>
+  <jsx />
+</template>
+```
+
+
 
 如果希望使用jsx
 
@@ -305,11 +439,25 @@ Suspense
     }
     ```
 
+  * vite中
+  
+  * ```json
+    import jsx from '@vitejs/plugin-vue-jsx'
+    export default defineConfig({
+      plugins: [jsx()]
+    })
+    ```
+    
   * 
 
 
 
 ### 动画
+
+transition本质是添加class
+条件渲染：v-if/v-show
+动态组件：component :is
+组件根节点
 
 ```vue
 <template>
@@ -317,26 +465,26 @@ Suspense
 </template>
 
 <style scoped>
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0
-  }
-  
-  .fade-enter-to,
-  .fade-leave-from {
-    opacity: 1
-  }
-  
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 1s ease
-  }
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 1s ease
+}
 </style>
 ```
 
 
 
-
+transition-group
 
 
 
@@ -369,7 +517,7 @@ Suspense
 * isReactive：检查对象是否是由 reactive创建的响应式代理
   * 该代理是 readonly 创建的，但包裹了由 reactive 创建的另一个代理，它也会返回 true
 * isReadonly：检查对象是否是由 readonly 创建的只读代理
-* toRaw：返回 reactive 或 readonly 代理的原始对象（不建议保留对原始对象的持久引用。请谨慎使用）
+* **toRaw**：返回 reactive 或 readonly 代理的原始对象（不建议保留对原始对象的持久引用。请谨慎使用）
 * shallowReactive：创建一个响应式代理，它跟踪其自身 property 的响应性，但不执行嵌套对象的深层响应式转换 (深层还是原生对象)。
 * shallowReadonly：创建一个 proxy，使其自身的 property 为只读，但不执行嵌套对象的深度只读转换（深层还是可读、可写的）。
 
@@ -438,13 +586,56 @@ computed源码如何对setter和getter处理呢
 
 * watch：需要手动指定侦听的数据源,并且执行其回调函数
   * 默认情况下它是惰性的，只有当被侦听的源发生变化时才会执行回调
+
+```vue
+<script setup>
+  import { reactive, ref, watch } from 'vue'
+  const message = ref('hello')
+  const info = reactive({
+    name: 'hhh',
+    age: 18
+  })
+  
+  watch(message, (newValue, oldValue) => {
+    console.log(newValue, oldValue)
+  })
+  // 复杂数据
+  // 默认开启了deep
+  watch(info, (newValue, oldValue) => {
+    // 打印出来相同的proxy
+    // 在源码中是两个引用指向同一个对象
+    console.log(newValue, oldValue)
+  })
+  // 侦听reactive数据变化,但是拿到普通对象(不想要proxy)
+  // 传入一个函数,执行时会收集依赖,函数返回值通过{...obj}变成一个普通对象
+  // 此时deep默认为false
+  watch(() => ({...info}), (newValue, oldValue) => {})
+</script>
+```
+
+
+
 * watchEffect：用于自动收集响应式数据的依赖。当侦听到某些响应式数据变化时，我们希望执行某些操作，可以使用watchEffect
-  * 1.watchEffect传入的函数会被立即执行一次，并且在执行的过程中会收集依赖
+  * 1.watchEffect传入的函数会被**立即执行**一次，并且在执行的过程中会收集依赖
   * 2.只有收集的依赖发生变化时，watchEffect传入的函数才会再次执行
 
+```vue
+<script setup>
+	import { watchEffect, ref } from 'vue'
+  
+  const counter = ref(0)
+  
+  watchEffect(() => {
+    console.log(counter.value)
+  })
+</script>
+```
 
 
-### Router
+
+
+
+## Router
 
 * 后端路由
 
@@ -478,7 +669,35 @@ computed源码如何对setter和getter处理呢
 component: () => import(/* webpackChunkName: "home-chunk" */ '../pages/Home.vue')
 ```
 
-提高首屏的渲染效率
+- 提高首屏的渲染效率
+
+子路由
+
+```js
+{ 
+  name: "home",
+  path: "/home", 
+  component: () => import("../Views/Home.vue"),
+  meta: {
+    age: 18
+  },
+  children: [
+    {
+      path: "/home",
+      redirect: "/home/recommend"
+    },
+    {
+      path: "recommend", // /home/recommend
+      component: () => import("../Views/HomeRecommend.vue")
+    }
+  ]
+}
+// 跳转
+router.push({
+  // name: "home"
+  path: "/home"
+})
+```
 
 
 
@@ -501,6 +720,19 @@ NotFound
 
 
 可以通过query的方式来传递参数
+
+```js
+router.push({
+  path: 'about',
+  query: {
+    name: 'hhh',
+    age: 18
+  }
+})
+// xxx/about?name=hhh&age=18
+```
+
+
 
 
 
@@ -538,16 +770,83 @@ router.getRoutes()：获取一个包含所有路由记录的数组。
 
 
 
-### vuex
+## vuex
 
 <img src="img/image-20221201173036803.png" alt="image-20221201173036803" style="zoom:70%;" />
 
-### pinia
+```js
+//State
+import { computed, toRefs } from 'vue'
+import { mapState, useStore } from 'vuex'
+// 1.一步步完成
+// const { name, level } = mapState(["name", "level"]) 
+// const store = useStore()
+// const cName = computed(name.bind({ $store: store }))
+// const cLevel = computed(level.bind({ $store: store }))
+
+// 2.使用useState
+import { computed } from 'vue'
+import { useStore, mapState } from 'vuex'
+
+export default function useState(mapper) {
+  const store = useStore()
+  const stateFnsObj = mapState(mapper) //拿到的是函数对象
+  
+  const newState = {}
+  Object.keys(stateFnsObj).forEach(key => {
+    newState[key] = computed(stateFnsObj[key].bind({ $store: store })) //内部通过this.$store拿值
+  })
+
+  return newState
+}
+// const { name, level } = useState(["name", "level"])
+
+
+// 3.直接对store.state进行解构(推荐)
+const store = useStore()
+const { name, level } = toRefs(store.state)
+  
+  
+//Getters
+import { computed, toRefs } from 'vue';
+import { mapGetters, useStore } from 'vuex'
+
+const store = useStore()
+
+// 1.使用mapGetters
+// const { message: messageFn } = mapGetters(["message"])
+// const message = computed(messageFn.bind({ $store: store }))
+
+// 2.直接解构, 并且包裹成ref
+// const { message } = toRefs(store.getters)
+
+// 3.针对某一个getters属性使用computed
+const message = computed(() => store.getters.message)
+
+
+
+//Mutation
+import { mapMutations, useStore } from 'vuex'
+
+const store = useStore()
+// 1.手动的映射和绑定
+const mutations = mapMutations(["changeName", "incrementLevel"])
+const newMutations = {}
+Object.keys(mutations).forEach(key => {
+  newMutations[key] = mutations[key].bind({ $store: store })
+})
+const { changeName, incrementLevel } = newMutations
+```
+
+
+
+## pinia
 
 可以使用store 上的 $reset() 方法将状态重置到其初始值
 
-通过将其 $state 属性设置为新对象来替换 Store 的整个状态
+$patch()一次性修改多个
 
+通过将其 $state 属性设置为新对象来替换 Store 的状态
 
 
 

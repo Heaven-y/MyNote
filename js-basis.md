@@ -124,6 +124,8 @@ DOM的继承关系图
 
 
 
+
+
 元素的大小、滚动
 
 * clientWidth: contentWidth + padding(不包含滚动条)
@@ -134,6 +136,14 @@ DOM的继承关系图
 * offsetTop: 距离父元素的y
 * scrollHeight: 整个可滚动的区域高度
 * scrollTop: 滚动部分的高度
+
+<img src="img/image-20230207110237701.png"  style="zoom:70%;" />
+
+
+
+
+
+
 
 
 

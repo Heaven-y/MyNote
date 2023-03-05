@@ -19,9 +19,51 @@
 
 
 
+https://tc39.es/ecma262/#sec-proxy-object-internal-methods-and-internal-slots
 
-```javascript
+| 内部方法            | Handler方法    | 触发条件                                                     |
+| ------------------- | -------------- | ------------------------------------------------------------ |
+| [[Get]]             | get            | 读取属性                                                     |
+| [[Set]]             | set            | 写入属性                                                     |
+| [[HasProperty]]     | has            | in 运算符                                                    |
+| [[Delete]]          | deleteProperty | delete 操作                                                  |
+| [[Call]]            | apply          | proxy对象作为函数被调用                                      |
+| [[Construct]]       | construct      | new操作                                                      |
+| [[GetPrototypeOf]]  | getPrototypeOf | Object.getPrototypeOf                                        |
+| [[SetPrototypeOf]]  |                |                                                              |
+| [[OwnPropertyKeys]] | ownKeys        | Object.getOwnPropertyNames<br/>Object.getOwnPropertySymbols<br />for...in<br />Object.keys/values/entries |
 
+`Object.getOwnPropertyNames(obj)` 返回非 Symbol 键
+
+`Object.getOwnPropertySymbols(obj)` 返回 symbol 键
+
+`Object.keys/values()` 返回带有 `enumerable` 标记的非 Symbol 键值对
+
+`for..in` 循环遍历所有带有 `enumerable` 标记的非 Symbol 键，以及原型对象的键
+
+
+
+
+
+可取消的proxy
+
+const {proxy, revoke} = Proxy.revocable(target, handler)
+
+```js
+const object = {
+  data: "Valuable data"
+};
+
+const {proxy, revoke} = Proxy.revocable(object, {});
+
+// proxy 正常工作
+console.log(proxy.data); // Valuable data
+
+// 之后某处调用
+revoke();
+
+// proxy 不再工作（已吊销）
+console.log(proxy.data); // Error
 ```
 
 
@@ -35,6 +77,10 @@
 * Reflect.getPrototypeOf(target)     Reflect.defineProperty(target, propertyKey, attributes)
 
 为了对 对象本身的操作更加规范，让这些操作都集中到Reflect对象上
+
+
+
+对于每个可被 Proxy 捕获的内部方法，Reflect 都有一个对应的方法 Reflect，其名称和参数与 Proxy 钩子相同。
 
 ```js
 const obj = {
@@ -72,6 +118,27 @@ objProxy.name = "kobe"
 console.log(objProxy.name)
 ```
 
+
+
+和construct结合
+
+```js
+function Person(name, age) {
+  this.name = name
+  this.age = age
+}
+
+function Student(name, age) {
+  // Person.call(this, name, age)
+  const _this = Reflect.construct(Person, [name, age], Student)
+  return _this
+}
+
+// const stu = new Student("why", 18)
+const stu = new Student("why", 18)
+console.log(stu)
+console.log(stu.__proto__ === Student.prototype)
+```
 
 
 
