@@ -1,5 +1,8 @@
-vscode开发小程序
-打开项目安装插件 wxml-language service（、小程序开发助手、wechat-snippet）
+页面生命周期 https://developers.weixin.qq.com/miniprogram/dev/framework/app-service/page-life-cycle.html
+
+![img](https://res.wx.qq.com/wxdoc/dist/assets/img/page-lifecycle.2e646c86.png)
+
+组件生命周期：https://developers.weixin.qq.com/miniprogram/dev/framework/custom-component/lifetimes.html
 
 
 
@@ -43,7 +46,77 @@ changedTouches：触发事件时改变的触摸点的集合
 
 小程序中插槽不支持默认值
 
+- 使用:empty+display进行设置
 
+```html
+<!--components/nav-bar/nav-bar.wxml-->
+<view class="nav-bar">
+  <view class="status" style="height: {{statusBarHeight}}px" />
+  <view class="nav">
+    <view class="left" bindtap="onNavLeftTap">
+      <view class="slot">
+        <slot name="left"></slot>
+      </view>
+      <view class="default">
+        <image class="icon" src="/assets/images/icons/arrow-left.png"></image>
+      </view>
+    </view>
+    <view class="center">
+      <view class="slot">
+        <slot name="center"></slot>
+      </view>
+      <view class="default">
+        {{title}}
+      </view>
+    </view>
+    <view class="right"></view>
+  </view>
+</view>
+```
+
+```css
+/* components/nav-bar/nav-bar.wxss */
+.nav {
+  display: flex;
+  height: 44px;
+  color: #fff;
+}
+.nav .left, .nav .right, .nav .center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.nav .left, .nav .right {
+  width: 120rpx;
+}
+.nav .center {
+  flex: 1;
+}
+.left .icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+.center {
+  text-align: center;
+}
+
+
+.default {
+  display: none;
+}
+
+.slot:empty + .default {
+  display: flex;
+}
+```
+
+
+
+
+
+ openid: 小程序中识别某一个帐号
+
+ unionid: 用于跨应用的，小程序、公众号
 
 ### 项目问题
 
@@ -82,9 +155,43 @@ bannerHeight
 在图片加载完后获取Image组件高度
 
 ```js
+
 ```
 
 
 
 
+
+ detail-menu，获取所有歌单信息。**promise.all**
+
+```js
+const allPromises = []
+for (const tag of tagRes.tags) {
+  const promise = getSongMenuList(tag.name)
+  allPromises.push(promise)
+}
+
+Promise.all(allPromises).then(res => {
+  this.setData({ songMenus: res })
+})
+```
+
+
+
+
+
+
+
+播放工具栏的图片旋转暂停
+
+animation-play-state
+
+```html
+<image 
+  class="album album-anim" 
+  src="{{currentSong.al.picUrl}}"
+  style="animation-play-state: {{ isPlaying? 'running': 'paused' }};"
+  bindtap="onPlayBarAlbumTap"
+/>
+```
 

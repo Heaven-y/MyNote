@@ -22,6 +22,7 @@ const { DefinePlugin } = require("webpack")
 module.exports = {
   mode: "development",//在js中通过process.env.NODE_ENV获取
   
+  context: path.resolve(__dirname, "../"), // context的作用是用于解析入口（entry point）和加载器（loader）默认应该是webpack的启动目录
   entry: "./scr/main.js",
   output: {
     filename: "bundle.js",
@@ -46,8 +47,8 @@ module.exports = {
   module: {
     rules: [
       {
-        // ***loader	npm i ***lodaer -D
-        test: /\.css$/,
+        // xxxloader	npm i xxxlodaer -D
+        test: /\.css$/, //对 resource（资源）进行匹配的，通常会设置成正则表达式
         use: [ // 多个loader使用顺序是从后往上
           { loader: "style-loader" }, // 将解析之后的css插入到页面中
           { loader: "css-loader" }, // 只是负责将.css文件进行解析
@@ -141,6 +142,8 @@ module.exports = {
 
 babel.config.js
 
+babel本身可以作为**一个独立的工具**（和postcss一样），不和webpack等构建工具配置来单独使用
+
 常见预设
 
 * env
@@ -232,6 +235,14 @@ localhost和0.0.0.0的区别
 配置区分开发和生产环境
 
 webpack-merge
+
+##### proxy
+
+- target：表示的是代理到的目标地址，比如 /api-hy/moment会被代理到 http://localhost:8888/api-hy/moment
+
+- pathRewrite：默认情况下，我们的 /api-hy 也会被写入到URL中，如果希望删除，可以使用pathRewrite
+- secure：默认情况下不接收转发到https的服务器上，如果希望支持，可以设置为false
+- changeOrigin：它表示是否更新代理后请求的headers中host地址
 
 
 

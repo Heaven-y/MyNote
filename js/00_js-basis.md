@@ -1,7 +1,7 @@
 浏览器内核
 
-* Gecko 早期被Netscape和Firefox浏览器使用
-* Trident 微软开发
+* Gecko(壁虎) 早期被Netscape和Firefox浏览器使用
+* Trident(三叉戟) 微软开发
 * Webkit  苹果基于KHTML开发、开源的
 * Blink 是Webkit的一个分支，目前应用于Google、Edge
 
@@ -51,9 +51,7 @@ typeof操作符
 
 
 
-==和===的区别(day19，day20)
-
-
+==和=\==的区别(day19，day20)
 
 * ==运算符，在类型不相同的情况下，会先将运算元转成Number类型的值再进行比较
   * 空字符串和false转换后都为数字0
@@ -116,13 +114,18 @@ push/pop方法运行比unshift/shift速度快
 
 DOM的继承关系图
 
-
+![image-20230305124516777](img/image-20230305124516777.png)
 
 区分节点和元素
 
 * 节点(Node)包括注释，文本
 
 
+
+**innerHTML和textContent的区别：**
+
+- 使用 innerHTML，我们将其“作为 HTML”插入，带有所有 HTML 标签。
+- 使用 textContent，我们将其“作为文本”插入，所有符号（symbol）均按字面意义处理
 
 
 
@@ -245,18 +248,5 @@ const obj = {
 }
 const item = JSON.stringify(obj) // "123"
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

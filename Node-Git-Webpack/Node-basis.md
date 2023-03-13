@@ -58,21 +58,13 @@ Node Package Manager
 
 ##### install原理
 
-默认安装开发和生产依赖
-
-开发依赖
-
-* npm install webpack --save-dev
-* npm install webpack -D
+![image-20230305164049594](img/image-20230305164049594.png)
 
 **从npm5开始，npm支持缓存策略,package-lock.json**
 
 package.json -> npm install
 
-* 无lock文件 -> 构建依赖关系 ------> registry仓库 ----------> 压缩包 -> 压缩到node_modules
-* 有lock文件 -> 检测一致性 -(一致)-> 查找缓存 -(查找到)-> 缓存文件(获取压缩包，添加缓存(npm5))
-  * ​               不一致，构建依赖关系      未找到，去registry仓库
-    * 检测lock中包的版本是否和package.json中一致（会按照semver版本规范检测）
+* 有lock文件，检测lock中包的版本是否和package.json中一致（会按照semver版本规范检测）
 
 package-lock.json中的属性
 
@@ -138,9 +130,13 @@ performant npm  https://pnpm.io
 软连接(soft link, 符号链接 Symbolic link)
 
 * 包含有一条以绝对路径或者相对路径的形式指向其它文件或者目录的**引用**
-  * **电脑的快捷方式**
+  * 电脑的快捷方式
   * window: mklink aa_sorf.js  aa.js
   * macos: ln -s  foo.js  foo_soft.js
+
+
+
+<img src="img/image-20230305164358624.png" style="zoom:80%;" />
 
 ##### 原理
 
@@ -150,6 +146,8 @@ performant npm  https://pnpm.io
   * 安装软件包时，包含的所有文件都会硬链接到此位置，而不占用额外硬盘空间
 
 非扁平的node_modules目录
+
+<img src="img/image-20230305164606885.png"  style="zoom:67%;" />
 
 ##### 存储store
 
@@ -201,6 +199,7 @@ AMD和CMD
 **在规范中没有module.exports的概念**
 
 * **为了实现模块的导出，实现了一个Module的类，每个模块都是一个实例module**
+*  所以在Node中真正用于导出的其实根本不是exports，而是module.exports；因为module才是导出的真正实现者
 
 ```js
 // 需要底层支撑(Node)
@@ -238,15 +237,23 @@ require(X)
 
 模块被多次引入时，会缓存，最终只运行**一次**
 
-* 每个模块对象module都有一个属性：loaded
+* 每个模块对象module都有一个属性：**loaded**
 
-* 为false表示还没有加载，为true表示已经加载
+  * false表示还没有加载，true表示已经加载
 
 循环引入：**深度优先**
+
+##### CJS规范缺点
+
+- 同步的意味着只有等到对应的模块加载完毕，当前模块中的内容才能被运行
+  - 浏览器加载js文件需要先从服务器将文件下载下来，之后再加载运行；那么采用同步的就意味着后续的js代码都无法正常运行，即使是一些简单的DOM操作
+  - 当然在**webpack**中使用CommonJS是另外一回事；因为**它会将我们的代码转成浏览器可以直接执行的代码**
 
 
 
 #### ESModule 
+
+它采用编译期的静态分析，并且也加入了动态引用的方式
 
 **采用ES Module将自动采用严格模式：use strict**
 
@@ -286,7 +293,9 @@ import addr from './aaa.js'
 
 import声明语法只能写在js代码顶层
 
-返回的是Promise对象,异步
+- ES Module在被JS引擎解析时，就必须知道它的依赖关系
+
+import函数返回的是Promise对象,异步
 
 ```js
 let flag = true
@@ -309,5 +318,7 @@ ES11新增特性 import.meta
 https://hacks.mozilla.org/2018/03/es-modules-a-cartoon-deep-dive/
 
 * 阶段一：构建(Construction)  根据地址查找js文件，并且下载，将其解析成模块记录（Module Record）
+  * <img src="img/image-20230305163837449.png" style="zoom:50%;" />
 * 阶段二：实例化(Instantiation) 对模块记录进行实例化，并且分配内存空间，解析模块的导入和导出语句，把模块指向对应的内存地址
 * 阶段三：运行(Evaluation) 运行代码，计算值，并且将值填充到内存地址中
+  * <img src="img/image-20230305163858045.png" style="zoom:50%;" />

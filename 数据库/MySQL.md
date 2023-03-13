@@ -1,20 +1,42 @@
 命令行登录数据库
 
-mysql -u root -p
-
-
+mysql -uroot -pxxxxx
 
 查看数据库
 
 show databases;
 
-
-
 ![image-20221106125545565](img/image-20221106125545565.png)
 
 
 
+数据库类型
 
+非关系型数据库不好细化操作，并且也会产生冗余数据
+
+
+
+## 表约束
+
+### PRIMARY KEY
+
+
+
+### UNIQUE
+
+
+
+### NOT NULL
+
+
+
+### DEFAULT
+
+
+
+## SQL
+
+Structed Query Language
 
 
 
@@ -22,12 +44,50 @@ SQL语句的分类
 
 * DDL(Data Definition Language)：数据定义语言
   * 对数据库或表进行创建、删除、修改等操作
-* DML(Data Manipulation Language)：数据操作语言
+* DML(Data Manipulation Language)：数据操作语言（增删改）
   * 对表进行添加、删除、修改等操作
-* DQL(Data Query Language)：数据查询语言
+* **DQL**(Data Query Language)：数据查询语言
   * 从数据库中查询记录
 * DCL(Data Control Language)：数据控制语言
   * 对数据库、表格的权限进行相关访问控制操作
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

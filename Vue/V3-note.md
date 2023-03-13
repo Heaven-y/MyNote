@@ -7,7 +7,7 @@
 * 方式二(vite)：npm init vue@latest
   * 安装一个本地工具：create-vue,使用create-vue创建一个vue项目
   
-  * vite直接按照es6的语法启动（启动快的原因之一）
+  * vite直接**按照es6**的语法启动（启动快的原因之一）
   
   * ```typescript
     export function getAssetURL(image: string): string {
@@ -76,21 +76,6 @@ v-on可通过$event传递事件
 * 修饰符  .stop/.prevent/......
 
 v-for: (item, index) in 数组/(value, key, index) in 对象
-
-* key的作用：主要用在Vue的虚拟DOM算法，在新旧nodes对比时辨识VNodes
-  * 如果不使用key，Vue会使用一种最大限度减少动态元素并且尽可能的尝试就地修改/复用相同类型元素的算法
-    * 使用 patchUnkeyedChildren方法
-    * 获取旧节点和新节点的长度
-    * 对比获取最小长度
-    * 从0开始依次patch比较
-    * 如果旧节点数目大于新节点,移除剩余节点
-    * 否则创建新节点
-  * 使用key时，它会基于key的变化重新排列元素顺序，并且会移除/销毁key不存在的元素
-    * 使用 patchKeyedChildren方法
-    * 1.头部开始遍历，遇到相同节点继续，不同就跳出循环
-    * 2.尾部开始遍历，遇到相同节点继续，不同就跳出循环
-    * 3.新节点更多，就添加新节点/旧节点更多，就移除旧节点
-    * 4.中间不知道排列的位置序列则根据key建立索引图。最大限度使用旧节点
 
 v-memo绑定any[]
 
@@ -279,7 +264,7 @@ defineExpose 编译器宏来显式指定在 \<script setup> 组件中要暴露�
 
 \<component :is="">\</component>
 
-### nexttick
+## nexttick
 
   将回调推迟到下一个DOM更新周期之后执行。在更改了一些数据以等待DOM更新后立即使用它
     需求：点击一个按钮后，会修改在h2中的message
@@ -298,8 +283,6 @@ defineExpose 编译器宏来显式指定在 \<script setup> 组件中要暴露�
     }
   ```
   假如有watch(counter,() => {})...时 监听的函数并不会执行一百次。真正的更新并不是同步更新，而是加入微任务队列中。当先把这次的宏任务做完时，再去执行微任务
-
-
 
 
 
@@ -489,19 +472,6 @@ transition-group
 
 
 ## setup
-
-不能使用this
-
-* 在setup被调用之前，data、computed、methods等都没有被解析
-  * this并没有指向当前组件实例
-* 1.调用 createComponentInstance 创建组件实例
-* 2.调用 setupComponent 初始化component内部的操作
-* 3.调用 setupStatefulComponent 初始化有状态的组件
-  * 在 setupStatefulComponent 取出了 setup 函数
-* 4.通过callWithErrorHandling 的函数执行 setup
-  * 组件的instance肯定是在执行 setup 函数之前就创建出来的
-
-
 
 ### ref/reactive
 

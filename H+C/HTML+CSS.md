@@ -13,9 +13,9 @@ URL和URI的区别
 
 #### SEO
 
-​	h元素 
+h元素 
 
-​	爬虫：  索引区 - `抓取` - > 网页 < - -`存放`- - > 临时库 ->(符合规则)索引区，在索引区中分类、归档、排序，然后将结果反馈给用户
+爬虫：  索引区 - `抓取` - > 网页 < - -`存放`- - > 临时库 ->(符合规则)索引区，在索引区中分类、归档、排序，然后将结果反馈给用户
 
 SSR
 
@@ -89,35 +89,6 @@ element.dataset.属性 or element.dataset['属性'] **只能获取data-开头的
   <dd></dd>
 </dl>
 ```
-
-
-
-#### 表格
-
-```html
-<table>
-  <tr>
-    <td></td>
-  </tr>
-</table>
-
-<table>
-  <thead>
-    <tr>
-    	<th></th>
- 		</tr>
-  </thead>
-	<tbody>
-    <tr>
-      <td></td>
-    </tr>
-	</tbody>
-</table>
-```
-
-border-collapse 合并边框
-
-colspan 跨列合并		rowspan 跨行合并
 
 
 
@@ -199,6 +170,11 @@ text-indent对行内非替换元素无效
 
 影响行内块级元素在一个行盒中垂直方向的位置
 
+**解决图片下边缘的间隙方法:** 
+
+- 方法一: 设置成top/middle/bottom
+- 方法二: 将图片设置为block元素
+
 
 
 #### line-hight
@@ -213,7 +189,7 @@ font-size/line-height   30px/1.5  1.5相对于30px
 
 行内非替换元素的高度无法由line-hight撑起来，但是会继承过来  `display:(inline-)block`
 
-;
+
 
 #### 选择器
 
@@ -225,6 +201,13 @@ font-size/line-height   30px/1.5  1.5相对于30px
 #### 伪类:
 
 ##### :empty	:root
+
+```less
+/* 隐藏滚动条 */
+&::-webkit-scrollbar {
+  display: none;
+}
+```
 
 
 
@@ -268,23 +251,20 @@ img、video、input能设置宽高：行内替换元素
 
 左右不传递、margin的上下传递
 
-​	marin-top：块级元素的顶部线和父元素的顶部线重叠，那么块级元素的margin-top会传递给父元素
-
-​	marin-bottom：块级元素的底部线和父元素的底部线重叠，且父元素高度为auto
-
-
+- marin-top：块级元素的顶部线和父元素的顶部线重叠，那么块级元素的margin-top会传递给父元素
+- marin-bottom：块级元素的底部线和父元素的底部线重叠，且父元素高度为auto
 
 如何防止出现传递
 
 * 给父元素设置padding-top
 * 给父元素设置border
-* 触发BFC
+* 触发BFC--overflow: auto
 
 
 
 2.折叠
 
-水平方向不折叠	上下折叠
+相邻的两个margin水平方向不折叠	上下折叠
 
 折叠计算：取大值
 
@@ -337,7 +317,9 @@ border-box
 
 box-shadow :https://html-css-js.com/css/generator/box-shadow/
 
+#### border
 
+https://css-tricks.com/the-shapes-of-css/#top-of-site
 
 #### bgimg和img对比
 
@@ -425,7 +407,10 @@ clear 属性可以指定一个元素是否必须移动(清除浮动后)到在它
 
 ## BFC(day15)
 
-Block Formating Context 块级格式化上下文
+**FC的全称是Formatting Context**
+
+- 块级元素的布局属于Block Formatting Context（BFC）
+- 行内级元素的布局属于Inline Formatting Context（IFC）
 
 #### 创建BFC的具体情况
 
@@ -440,7 +425,7 @@ Block Formating Context 块级格式化上下文
 
 
 
-在一个BFC中，盒子在垂直方向上从顶往下一个一个排布。盒子间的距离通过margin设置。**在同一个BFC中**，相邻两个块级元素垂直方向上的margin会折叠。  每个元素的左边缘是紧挨着包含块的左边缘的
+在一个BFC中，盒子在垂直方向上从顶往下一个一个排布。垂直方向的间距通过margin设置。**在同一个BFC中**，相邻两个块级元素垂直方向上的margin会折叠。在BFC中每个元素的左边缘是紧挨着包含块的左边缘的
 
 
 
@@ -448,14 +433,15 @@ Block Formating Context 块级格式化上下文
 
 * 解决margin的折叠问题
   * 让元素在不同的BFC中
-
 * 解决浮动高度塌陷问题
+  * **不能解决绝对定位元素的高度塌陷问题**
   * 浮动元素的父元素的height为auto
   * 浮动元素的父元素触发BFC，形成独立的块级格式化上下文
-    * BFC的高度是auto情况下，如下计算高度：1.如果只有inline-level，是行高的顶部和底部的距离
-    * 2.如果有block-level，由最顶层的块上边缘和最底层块盒子的下边缘之间的距离
-    * 3.**如果有绝对定位元素，将被忽略**
-    * 4.如果有浮动元素，那么会增加高度以包括这些浮动元素的下边缘
+    * BFC的高度是auto情况下，如下计算高度：
+      * 1.如果只有inline-level，是行高的顶部和底部的距离
+      * 2.如果有block-level，由最顶层的块上边缘和最底层块盒子的下边缘之间的距离
+      * 3.**如果有绝对定位元素，将被忽略**
+      * 4.如果有浮动元素，那么会增加高度以包括这些浮动元素的下边缘
 
 
 
@@ -465,10 +451,6 @@ Block Formating Context 块级格式化上下文
 
 
 
-transform = translate() scale() rotate()
-
-rotate 旋转
-
 transform-origin
 
 
@@ -476,6 +458,10 @@ transform-origin
 ### transition
 
 transition = property  duration  timing-function  delay
+
+可执行动画的CSS属性
+
+https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_animated_properties
 
 
 
@@ -497,6 +483,8 @@ backdrop-filter:blur()
 
 ### gradient
 
+<gradient\> 是一种\<image>CSS数据类型的子类型
+
 颜色渐变函数 生成的是image
 
 background-image:...-gradient()
@@ -515,7 +503,10 @@ container中的属性
 * justify-content
 * align-items
   * height为auto时，值为stretch，会产生拉伸效果，占据整个高度
+  * <img src="img/image-20230305120546072.png" style="zoom:50%;" />
 * align-content
+  * 默认值stretch
+  * <img src="img/image-20230305120600793.png"  style="zoom:50%;" />
 
 
 
@@ -610,9 +601,3 @@ PC端:浏览器可视区域
   * ccsrem VSCode插件
 
 * flex的弹性布局
-
-
-
-
-
-npm install typescript ts-node tslib @types/node -g
