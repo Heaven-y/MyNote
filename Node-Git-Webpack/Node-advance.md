@@ -1158,3 +1158,308 @@ use(fn) {
 ```
 
 
+
+
+
+# Node-MySQL2
+
+- Prepared Statement（预编译语句）：
+  -  提高性能：将创建的语句模块发送给MySQL，然后MySQL编译（解析、优化、转换）语句模块，并且**存储它但是不执行**，之后我们在真正执行时会给?提供实际的参数才会执行；就算**多次执行，也只会编译一次**，所以性能是更高的
+  -  防止SQL注入：之后传入的值不会像模块引擎那样就编译，那么一些SQL注入的内容不会被执行；
+    (恶意传入的 " 'where 条件 ' + or 1 = 1"不会被执行)
+
+
+
+
+
+普通使用 
+
+```js
+const mysql = require('mysql2')
+// 1.创建一个连接(连接上数据库)
+const connection = mysql.createConnection({
+  host: 'localhost',
+  port: 3306,
+  database: 'xxx',
+  user: 'root',
+  password: 'xxx.'
+})
+// 2.执行操作语句, 操作数据库
+const statement = 'SELECT * FROM `students`;'
+// structure query language: DDL/DML/DQL/DCL
+connection.query(statement, (err, values, fields) => {
+  if (err) {
+    console.log('查询失败:', err)
+    return
+  }
+  // 查看结果
+  console.log(values)
+  // console.log(fields)
+})
+```
+
+
+
+## 连接池
+
+- 连接池可以在需要的时候自动创建连接，并且创建的连接不会被销毁，会放到连接池中，后续可以继续使用
+
+const [values, fields] = res
+
+```js
+const mysql = require('mysql2')
+// 1.创建一个连接
+const connectionPool = mysql.createPool({
+  host: 'localhost',
+  port: 3306,
+  database: 'xxx',
+  user: 'root',
+  password: 'xxx.',
+  connectionLimit: 5 // 限制连接数量
+})
+// 2.1 执行一个SQL语句: 预处理语句
+const statement = 'SELECT * FROM `products` WHERE price > ? AND score > ?;'
+connectionPool.execute(statement, [1000, 8], (err, values) => {
+  console.log(values)
+})
+
+
+// 2.2 promise写法
+const statement = 'SELECT * FROM `products` WHERE price > ? AND score > ?;'
+connectionPool.promise().execute(statement, [1000, 9]).then((res) => {
+  const [values, fields] = res
+  console.log('-------------------values------------------')
+  console.log(values)
+  console.log('-------------------fields------------------')
+  console.log(fields)
+}).catch(err => {
+  console.log(err)
+})
+```
+
+
+
+
+
+## 分层架构
+
+- router
+- (middleware)
+- controller
+- service
+
+![image-20230317184605745](img/image-20230317184605745.png)
+
+
+
+## 密码加密存储
+
+内置库crypto
+
+```typescript
+import crypto from 'crypto'
+
+const md5Password = (password: string) => {
+  const hash = crypto.createHash('md5')
+  const res = hash.update(password).digest('hex')
+  return res
+}
+
+export default md5Password
+```
+
+
+
+## cookie/session/token
+
+**cookie**
+
+- 内存Cookie由浏览器维护，保存在内存中，浏览器关闭时Cookie就会消失，其存在时间是短暂的
+- 硬盘Cookie保存在硬盘中，有一个过期时间，用户手动清理或者过期时间到时，才会被清理
+  - 有设置过期时间，并且过期时间不为0或者负数的cookie，是硬盘cookie
+
+cookie常见属性
+
+- expires：设置的是Date.toUTCString()，设置格式是:expires=date-in-GMTString-format；
+- max-age：设置过期的秒钟，max-age=max-age-in-seconds (例如一年为60\*60*24\*365)
+- **Domain**：指定哪些主机可以接受cookie
+  -  如果不指定，那么默认是 origin，不包括子域名
+- **Path**：指定主机下哪些路径可以接受cookie（包括子路径）
+
+cookie缺陷：
+
+- Cookie会被附加在每个HTTP请求中，所以无形中增加了流量；
+- Cookie是明文传递的，存在安全性的问题
+- Cookie的大小限制是4KB，对于复杂的需求来说是不够的
+- 对于浏览器外的其他客户端（比如iOS、Android），必须手动的设置cookie和session
+- 对于分布式系统和服务器集群中其他系统可以正确的解析session很麻烦
+
+
+
+客户端设置 document.cookie
+
+服务端-Koa
+
+```js
+userRouter.get('/login', (ctx, next) => {
+  // 在服务器中为登录的客户端, 设置一个cookie
+  ctx.cookies.set('slogan', 'ikun', {
+    maxAge: 60 * 1000 * 5
+  })
+  ctx.body = '登录成功~'
+})
+
+userRouter.get('/list', (ctx, next) => {
+  // 验证用户的登录凭证: 携带slgoan-ikun
+  const value = ctx.cookies.get('slogan')
+  console.log(value)
+  if (value === 'ikun') {
+    ctx.body = `user list data~`
+  } else {
+    ctx.body = `没有权限访问用户列表, 请先登录~`
+  }
+})
+```
+
+
+
+
+
+**session**：是基于cookie实现机制
+
+```js
+const Koa = require('koa')
+const KoaRouter = require('@koa/router')
+const koaSession = require('koa-session')
+
+const app = new Koa()
+
+const userRouter = new KoaRouter({ prefix: '/users' })
+
+const session = koaSession({
+  key: 'sessionid', // cookie的key
+  signed: true, // 设置为false就是不进行加盐操作
+  maxAge: 60 * 1000 * 5,
+  // httpOnly: true, // 不允许通过js获取cookie
+  // rolling: true // 每次响应时，刷新session有效期
+}, app)
+// 加盐操作
+app.keys = ['aaa', 'bbb', 'ccc', 'ddd']
+app.use(session)
+
+userRouter.get('/login', (ctx, next) => {
+  // 在服务器中为登录的客户端, 设置一个cookie
+  ctx.session.slogan = 'ikun'
+  ctx.body = '登录成功~'
+})
+
+userRouter.get('/list', (ctx, next) => {
+  // 验证用户的登录凭证: 携带slgoan-ikun
+  const value = ctx.session.slogan
+  console.log(value)
+  if (value === 'ikun') {
+    ctx.body = `user list data~`
+  } else {
+    ctx.body = `没有权限访问用户列表, 请先登录~`
+  }
+})
+```
+
+
+
+
+
+**token**
+
+分布式系统
+
+- 高并发
+  淘宝系统 划分为多个子系统
+  - 用户系统
+  - 商品系统
+  - 订单系统
+  - ......
+
+
+
+三部分组成
+
+**header**
+
+- alg：采用的加密算法，默认是HMAC SHA256（HS256），采用对称加密（同一个密钥进行加密/解密）
+- typ：JWT，固定值，通常写成JWT即可
+- 通过base64Url算法进行编码
+
+**payload**
+
+- 携带的数据，比如我们可以将用户的id和name放到payload中
+- 默认也会携带iat（issued at），令牌的签发时间
+- 可以设置过期时间：exp（expiration time）
+- 通过base64Url算法进行编码
+
+**signature**
+
+- 设置一个secretKey，通过将前两个的结果合并后进行HMACSHA256的算法
+- HMACSHA256(base64Url(header)+.+base64Url(payload), secretKey)
+- 如果secretKey暴露是一件非常危险的事情，因为之后就可以模拟颁发token，也可以解密token
+
+
+
+非对称加密
+
+RS256
+
+```
+openssl
+OpenSSL> genrsa -out private.key 2048
+OpenSSL> rsa -in private.key -pubout -out public.key
+```
+
+
+
+```js
+const fs = require('fs')
+const Koa = require('koa')
+const KoaRouter = require('@koa/router')
+const jwt = require('jsonwebtoken')
+
+const app = new Koa()
+
+const userRouter = new KoaRouter({ prefix: '/users' })
+
+const privateKey = fs.readFileSync('./keys/private.key')
+const publicKey = fs.readFileSync('./keys/public.key')
+
+userRouter.get('/login', (ctx, next) => {
+  // 1.颁发token
+  const payload = { id: 111, name: 'hhh' }
+  const token = jwt.sign(payload, privateKey, {
+    expiresIn: 60,
+    algorithm: 'RS256' // 加密算法
+  })
+
+  ctx.body = {
+    code: 0,
+    token,
+    message: '登录成功'
+  }
+})
+
+userRouter.get('/list', (ctx, next) => {
+  // 1.获取客户端携带过来的token
+  const authorization = ctx.header.authorization
+  const token = authorization?.replace('Bearer ', '') ?? ''
+
+  // 2.验证token
+  try {
+    // { id, name, iat: 1678960540, exp: 1679046940 }
+    const res = jwt.verify(token, PUBLIC_KEY, { algorithms: ['RS256'] })
+
+    ctx.body = { code: 0, message: 'token验证通过' }
+  } catch (error) {
+    return ctx.app.emit('error', errorType.UNAUTHORIZATION, ctx)
+  }
+})
+```
+
+
