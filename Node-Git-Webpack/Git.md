@@ -8,6 +8,73 @@
 
 
 
+### Git-Husky
+
+husky是一个git hook工具，可以帮助我们触发git提交的各个阶段：pre-commit、commit-msg、pre-push
+
+npx husky-init && npm install   --会做以下三件事
+
+- 1.安装husky相关的依赖
+- 2.在项目目录下创建 ".husky" 文件夹
+- 3.在package.json中添加一个脚本
+
+commit 后会自动对代码进行prettier
+
+```shell
+/* .husky/pre-commit */
+
+npm run lint
+```
+
+### commit规范
+
+npm install commitizen -D
+npx commitizen init cz-conventional-changelog -D --save-exact
+这个命令会在package.json中进行配置："config": { "commitizen": xxx }
+
+
+
+提交代码需要使用 `npx cz`
+
+
+
+| Type     | 作用                                                         |
+| -------- | ------------------------------------------------------------ |
+| feat     | 新增特性 (feature)                                           |
+| fix      | 修复 Bug(bug fix)                                            |
+| docs     | 修改文档 (documentation)                                     |
+| style    | 代码格式修改(white-space, formatting, missing semi colons, etc) |
+| refactor | 代码重构(refactor)                                           |
+| perf     | 改善性能(A code change that improves performance)            |
+| test     | 测试(when adding missing tests)                              |
+| build    | 变更项目构建或外部依赖（例如 scopes: webpack、gulp、npm 等） |
+| ci       | 更改持续集成软件的配置文件和 package 中的 scripts 命令，例如 scopes: Travis, Circle 等 |
+| chore    | 变更构建流程或辅助工具(比如更改测试环境)                     |
+| revert   | 代码回退                                                     |
+
+#### 强行限制提交规范的格式
+
+1.npm i @commitlint/config-conventional @commitlint/cli -D
+2.在根目录创建commitlint.config.js文件，配置commitlint
+
+```js
+module.exports = {
+  extends: ['@commitlint/config-conventional']
+}
+```
+
+3.使用husky生成commit-msg文件，验证提交信息
+
+```shell
+npx husky add .husky/commit-msg "npx --no-install commitlint --edit $1"
+```
+
+
+
+
+
+
+
 ###  Git原理
 
 查看object目录下文件内容
