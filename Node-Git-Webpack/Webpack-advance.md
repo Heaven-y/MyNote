@@ -278,8 +278,68 @@ scripts中增加脚本命令 "webpack server"
 ```js
 /* webpack.config.js */
 module.exports = {
+  devServer: {
+    open: false, //是否打开浏览器
+    comporess: false, //是否为静态文件开启gzip compression  在服务端压缩
+    static: ['public', 'content'], // 静态文件夹,默认有public
+    historyApiFallback: true,
+  }
 }
 ```
+
+**historyApiFallback**：主要的作用是解决SPA页面在路由跳转之后，进行页面刷新时，返回404的错误
+
+- 设置为true，那么在刷新时，返回404错误时，会自动返回 index.html 的内容
+- vue等脚手架已经设置好了
+
+
+
+## Proxy代理
+
+本质是使用了http-proxy-middleware软件包
+
+```js
+/* webpack.config.js */
+module.exports = {
+  devServer: {
+    port: 8888,
+    proxy: {
+      '/api': {
+        target: 'htpp://localhost:9000',
+        pathRewrite: {
+          '^/api': ''
+        },
+        changeOrigin: true
+      }
+    }
+  }
+}
+```
+
+- axios.get('/api/users/list') ->请求的是webpack开启的服务器 'http://localhost:8888/api/users/list'
+  变为axios.get('http://localhost:9000/api/users/list')
+- pathRewrite后变为axios.get('http://localhost:9000/users/list')
+  - 这样请求不会产生跨域（因为资源就部署webpack的服务器上）
+    - 等于静态资源和API指向同一个服务器
+- **changeOrigin**：假设不开启，target服务器拿到的headers->host还是 **localhost:8888**
+  - 开启后，target服务器拿到的headers->host变为了 **localhost:9000**
+
+
+
+
+
+# 性能优化方案
+
+结果进行优化：
+1.分包处理 react/vue路由懒加载
+2.代码丑化
+3.删除无用代码(Tree Shaking)
+4.CDN服务器
+
+打包过程优化：
+1.exclue/cache
+
+
 
 
 
